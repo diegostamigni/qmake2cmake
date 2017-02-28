@@ -332,14 +332,17 @@ void Converter::writeCMakeLists(QString proFile)
         if(!TARGET.isEmpty()) {
             text << QString("project( %1 )\n").arg(TARGET);
         } else    TARGET = proFile.section('/',0,-2).section('/',-1);
-        text << "cmake_minimum_required( VERSION 2.6 )\n";
+        text << "cmake_minimum_required( VERSION 3.1 )\n";
+        text << "set( CMAKE_CXX_STANDARD 14 )\n";
+        text << "set( CMAKE_INCLUDE_CURRENT_DIR ON )\n";
+        text << "set( CMAKE_AUTOMOC ON )\n";
         // check the config-variable and take respective action
         QRegExp buildtype(".*(debug|release|debug_and_release).*",Qt::CaseInsensitive);
         i = CONFIG.lastIndexOf(buildtype);
         if(!buildtype.cap(1).isEmpty())
         {
             // buildtype is set - so let's set it for CMake
-            text << "set ( CMAKE_BUILD_TYPE ";
+            text << "set( CMAKE_BUILD_TYPE ";
             // workaround the "debug_and_release" option: just build release
             // with debug info ...
             if(buildtype.cap(1)=="debug_and_release")
@@ -366,14 +369,9 @@ void Converter::writeCMakeLists(QString proFile)
 
         if(CONFIG.contains("qt"))
         {
-            text << "find_package ( Qt4 REQUIRED )\n";
-            text << "include ( ${QT_USE_FILE} )\n";
-            foreach(QString use, QT)
-            {
-                links += QString(" ${QT_QT%1_INCLUDE_DIR}").arg(use.toUpper());
-            }
-            text << QString("include_directories (\n\t${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}\n\t%1\n\t%2)\n")
-                    .arg(links.trimmed()).arg(INCLUDEPATH.join("\n\t"));
+            text << "find_package ( Qt5Widgets REQUIRED )\n";
+            text << "find_package ( Qt5Core REQUIRED )\n";
+            text << "find_package ( Qt5Gui REQUIRED )\n";
             links.replace("INCLUDE_DIR","LIBRARY");
         }
 
@@ -406,14 +404,14 @@ void Converter::writeCMakeLists(QString proFile)
             if(!FORMS.isEmpty())
             {   text << QString("set ( %1_UIS\n\t%2\n\t)\n")
                     .arg(TARGET).arg(FORMS.join("\n\t"));
-                text << QString("QT4_WRAP_UI(UIS ${%1_UIS})\n\n").arg(TARGET);
+                text << QString("QT5_WRAP_UI(UIS ${%1_UIS})\n\n").arg(TARGET);
                 help += " ${UIS}";
             }
             // write resources
             if(!RESOURCES.isEmpty())
             {   text << QString("set ( %1_RSCS\n\t%2\n\t)\n")
                     .arg(TARGET).arg(RESOURCES.join("\n\t"));
-                text << QString("QT4_ADD_RESOURCES(RSCS ${%1_RSCS})\n\n")
+                text << QString("QT5_ADD_RESOURCES(RSCS ${%1_RSCS})\n\n")
                     .arg(TARGET);
                 help += " ${RSCS}";
             }
@@ -421,7 +419,7 @@ void Converter::writeCMakeLists(QString proFile)
             if(!TRANSLATIONS.isEmpty())
             {   text << QString("set ( %1_TRS\n\t%2\n\t)\n")
                     .arg(TARGET).arg(TRANSLATIONS.join("\n\t"));
-                text << QString("QT4_ADD_TRANSLATION(TRS ${%1_TRS})\n\n")
+                text << QString("QT5_ADD_TRANSLATION(TRS ${%1_TRS})\n\n")
                     .arg(TARGET);
                 help += " ${TRS}";
             }
@@ -429,7 +427,7 @@ void Converter::writeCMakeLists(QString proFile)
             if(!TOMOC.isEmpty())
             {   text << QString("set ( %1_MOCS\n\t%2\n\t)\n")
                     .arg(TARGET).arg(TOMOC.join("\n\t"));
-                text << QString("QT4_WRAP_CPP(MOCS ${%1_MOCS})\n\n").arg(TARGET);
+                text << QString("QT5_WRAP_CPP(MOCS ${%1_MOCS})\n\n").arg(TARGET);
                 help += " ${MOCS}";
             }
             if(TEMPLATE == "app")
@@ -443,7 +441,7 @@ void Converter::writeCMakeLists(QString proFile)
                     text << "SHARED ";
             }
             text << QString("${%1_SRCS} ${UIS} ${RSCS} ${TRS} ${MOCS} )\n").arg(TARGET);
-            text << QString("target_link_libraries ( %1 %2 )\n").arg(TARGET)
+            text << QString("target_link_libraries ( %1 %2 Qt5::Core Qt5::Gui Qt5::Widgets )\n").arg(TARGET)
                     .arg(links);
         }
         text.flush();

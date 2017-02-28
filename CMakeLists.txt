@@ -13,7 +13,6 @@ set(qm2cm_SRCS converter.cpp qm2cm.cpp main.cpp)
 set(qm2cm_UIS qm2cm.ui)
 
 qt5_wrap_ui(qm2cm_wrapped_UIS ${qm2cm_UIS})
-#qt5_automoc(${qm2cm_SRCS})
 
 add_executable(qm2cm ${qm2cm_SRCS} ${qm2cm_wrapped_UIS})
 target_link_libraries(qm2cm Qt5::Core Qt5::Gui Qt5::Widgets)
