@@ -1,5 +1,5 @@
 ### QMake2CMake
-This project is based on the pretty old [QMake2CMake](https://sourceforge.net/p/qmake2cmake/code/HEAD/tree/) that has been improved, fixed and updated to the lasted version of QT.
+This project is based on the pretty old [QMake2CMake](https://sourceforge.net/p/qmake2cmake/code/HEAD/tree/) that has been improved, fixed and updated to the latest version of QT.
 
 In order to use build this, do the following:
 
